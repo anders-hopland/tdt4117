@@ -1,39 +1,56 @@
 import random; random.seed(123)
-import string
 import codecs
-from nltk.stem.porter import PorterStemmer
 import re
+import gensim
+from lib.helpers import Helper
 
-stemmer = PorterStemmer()
-translator = str.maketrans('', '', string.punctuation+"\n\r\t")
+helper = Helper()
 
 f = codecs.open("pg3300.txt", "r", "utf-8")
 
 text = f.read()
-paragraphs = text.split('\r\n\r\n') # Split into seperate paragraphs
-paragraphs = [p for p in paragraphs if 'Gutenberg' not in p] # Filter out headers and footers
-words = [re.findall(r'\S+', w) for w in paragraphs]
-words = [str(w).translate(translator).lower() for p in words for w in p]
-processed_words = []
-for p in words:
-    for w in words:
-        
-#stemmed_words = [stemmer.stem(w) for w in words]
-'''
-for p in words:
-    print(p)
-    for w in p:
-        print(w)
-        print('\n')
-'''
+paragraphs = helper.split_to_paragraphs(text)
+paragraphs = helper.remove_containing_word(paragraphs, "Gutenberg") # Filter out headers and footers
+words = helper.split_to_words(paragraphs[:])
+processed_words = helper.remove_punctuations_2d(words)
+stemmed_words = helper.stem_2d_list(processed_words)
 
+# Part two
+dictionary = gensim.corpora.Dictionary(stemmed_words)
+stop_word_ids = helper.get_stopword_ids(dictionary)
 
-#print(len(paragraphs))
-#print(paragraphs[100])
-#print(words[100][11])
-print(str(words[10]))
-'''for p in words:
-    for w in p:
-        print(w)
+dictionary.filter_tokens(stop_word_ids)
 
-'''
+bag_of_words = helper.get_bag_of_words(stemmed_words, dictionary)
+
+# Part three
+# tf-idf
+tfidf_model = gensim.models.TfidfModel(bag_of_words)
+tfidf_corpus = tfidf_model[bag_of_words]
+similarity_mat_tfidf = gensim.similarities.MatrixSimilarity(tfidf_corpus)
+
+# lsi
+lsi_model = gensim.models.LsiModel(tfidf_corpus, id2word=dictionary, num_topics=100)
+lsi_corpus = lsi_model[bag_of_words]
+similarity_mat_lsi = gensim.similarities.MatrixSimilarity(lsi_corpus)
+
+print(lsi_model.show_topics(3))
+
+# Part four
+query = "What is the function of money?"
+query = query.split(" ")
+print(query)
+query = helper.remove_punctuations_1d(query)
+print(query)
+query = helper.stem_1d_list(query)
+query = dictionary.doc2bow(query)
+
+tfidf_model_query = tfidf_model[query]
+
+docsim = enumerate(similarity_mat_tfidf[tfidf_model_query])
+docs = sorted(docsim, key=lambda kv: -kv[1])[:3]
+print(docs)
+print(paragraphs[docs[0][0]])
+print(paragraphs[docs[1][0]])
+print(paragraphs[docs[2][0]])
+
