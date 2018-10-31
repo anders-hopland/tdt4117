@@ -10,7 +10,11 @@ f = codecs.open("pg3300.txt", "r", "utf-8")
 
 text = f.read()
 paragraphs = helper.split_to_paragraphs(text)
-paragraphs = helper.remove_containing_word(paragraphs, "Gutenberg") # Filter out headers and footers
+print("Before")
+print(len(paragraphs))
+paragraphs = helper.remove_containing_word(paragraphs, "Gutenberg".lower()) # Filter out headers and footers
+print("After")
+print(len(paragraphs))
 words = helper.split_to_words(paragraphs[:])
 processed_words = helper.remove_punctuations_2d(words)
 stemmed_words = helper.stem_2d_list(processed_words)
@@ -37,7 +41,7 @@ similarity_mat_lsi = gensim.similarities.MatrixSimilarity(lsi_corpus)
 print(lsi_model.show_topics(3))
 
 # Part four
-query = "What is the function of money?"
+query = "How taxes influence economics?"
 query = query.split(" ")
 print(query)
 query = helper.remove_punctuations_1d(query)

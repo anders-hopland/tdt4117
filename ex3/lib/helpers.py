@@ -6,7 +6,6 @@ class Helper():
     def __init__(self):
         self.translator = str.maketrans('', '', string.punctuation+"\n\r\t")
         self.stemmer = PorterStemmer()
-        self.dictionary = gensim.corpora.Dictionary()
 
 
     def split_to_paragraphs(self, text):
@@ -14,7 +13,7 @@ class Helper():
 
 
     def remove_containing_word(self, list, word):
-        return [p for p in list if word not in p] 
+        return [p for p in list if word not in p.lower()] 
 
 
     def split_to_words(self, paragraphs):
