@@ -4,16 +4,20 @@ import gensim
 
 class Helper():
     def __init__(self):
-        self.translator = str.maketrans('', '', string.punctuation+"\n\r\t")
+        self.translator = str.maketrans(
+            '',
+            '',
+            string.punctuation + "\n\r\t")
         self.stemmer = PorterStemmer()
 
 
     def split_to_paragraphs(self, text):
-        return text.split('\r\n\r\n') # Split into seperate paragraphs
+        text = text.split('\r\n\r\n') # Split into seperate paragraphs
+        return [p for p in text if p] 
 
 
-    def remove_containing_word(self, list, word):
-        return [p for p in list if word not in p.lower()] 
+    def remove_containing_word(self, paragraphs, word):
+        return [p for p in paragraphs if word not in p.lower()] 
 
 
     def split_to_words(self, paragraphs):
@@ -24,20 +28,15 @@ class Helper():
 
 
     def remove_punctuations_1d(self, words):
-        print("Before func", words)
         for i, word in enumerate(words):
+            # Remove punctuations using a translator
             words[i] = word.lower().translate(self.translator)
 
-        print("Before func", words)
-        return words
+        return [p for p in words if p]
 
 
     def remove_punctuations_2d(self, paragraphs):
-        for i, paragraph in enumerate(paragraphs):
-            for j, word in enumerate(paragraph):
-                paragraphs[i][j] = word.lower().translate(self.translator)
-
-        return paragraphs
+        return [self.remove_punctuations_1d(w) for w in paragraphs]
 
 
     def stem_1d_list(self, words):
@@ -57,7 +56,7 @@ class Helper():
 
 
     def get_stopwords(self):
-        f = open("stopwords.txt")
+        f = open("stopwords.txt") # Open file containing all stopwords
         stopwords = f.read()
         stopwords = stopwords.split(",")
         return stopwords
