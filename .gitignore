@@ -2,3 +2,6 @@ venv
 *.vscode
 */__pycache__
 __pycache__
+node_modules
+yarn.lock
+package.json
