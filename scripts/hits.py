@@ -28,7 +28,7 @@ def normalize(data):
 
     return data
 
-for k in range(20):
+for k in range(3):
     # Calculate auth score
     for i, col in enumerate(mat_trans):
         sum_auth = 0
